@@ -13,6 +13,7 @@ import { Route as WorkerRouteImport } from './routes/worker'
 import { Route as RecruiterRouteImport } from './routes/recruiter'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WorkerIndexRouteImport } from './routes/worker.index'
 
 const WorkerRoute = WorkerRouteImport.update({
   id: '/worker',
@@ -34,39 +35,46 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkerIndexRoute = WorkerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/recruiter': typeof RecruiterRoute
-  '/worker': typeof WorkerRoute
+  '/worker': typeof WorkerRouteWithChildren
+  '/worker/': typeof WorkerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/recruiter': typeof RecruiterRoute
-  '/worker': typeof WorkerRoute
+  '/worker': typeof WorkerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/onboarding': typeof OnboardingRoute
   '/recruiter': typeof RecruiterRoute
-  '/worker': typeof WorkerRoute
+  '/worker': typeof WorkerRouteWithChildren
+  '/worker/': typeof WorkerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/onboarding' | '/recruiter' | '/worker'
+  fullPaths: '/' | '/onboarding' | '/recruiter' | '/worker' | '/worker/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/onboarding' | '/recruiter' | '/worker'
-  id: '__root__' | '/' | '/onboarding' | '/recruiter' | '/worker'
+  id: '__root__' | '/' | '/onboarding' | '/recruiter' | '/worker' | '/worker/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   OnboardingRoute: typeof OnboardingRoute
   RecruiterRoute: typeof RecruiterRoute
-  WorkerRoute: typeof WorkerRoute
+  WorkerRoute: typeof WorkerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -99,14 +107,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/worker/': {
+      id: '/worker/'
+      path: '/'
+      fullPath: '/worker/'
+      preLoaderRoute: typeof WorkerIndexRouteImport
+      parentRoute: typeof WorkerRoute
+    }
   }
 }
+
+interface WorkerRouteChildren {
+  WorkerIndexRoute: typeof WorkerIndexRoute
+}
+
+const WorkerRouteChildren: WorkerRouteChildren = {
+  WorkerIndexRoute: WorkerIndexRoute,
+}
+
+const WorkerRouteWithChildren =
+  WorkerRoute._addFileChildren(WorkerRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   OnboardingRoute: OnboardingRoute,
   RecruiterRoute: RecruiterRoute,
-  WorkerRoute: WorkerRoute,
+  WorkerRoute: WorkerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
