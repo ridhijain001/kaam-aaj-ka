@@ -83,11 +83,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "AI-powered multilingual hiring for India's informal workforce. Find trusted work or hire trusted workers nearby." },
       { name: "author", content: "KaamSetu" },
       { name: "theme-color", content: "#F97316" },
-      { property: "og:title", content: "KaamSetu — AI hiring for India's informal workforce" },
-      { property: "og:description", content: "Workers find trusted jobs in their language. Recruiters post jobs in seconds — AI does the rest." },
+      { property: "og:title", content: "KaamSetu — Trusted work, simple language" },
+      { property: "og:description", content: "AI-powered multilingual hiring for India's informal workforce. Find trusted work or hire trusted workers nearby." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "KaamSetu — Trusted work, simple language" },
+      { name: "twitter:description", content: "AI-powered multilingual hiring for India's informal workforce. Find trusted work or hire trusted workers nearby." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bdae09e4-9aa0-4b23-93bc-9b5a2209a2e8/id-preview-4a8f65e6--289279a1-b27c-4d75-86b2-e48b3f36df34.lovable.app-1780666067647.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/bdae09e4-9aa0-4b23-93bc-9b5a2209a2e8/id-preview-4a8f65e6--289279a1-b27c-4d75-86b2-e48b3f36df34.lovable.app-1780666067647.png" },
     ],
     links: [
       {
