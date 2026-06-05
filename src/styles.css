@@ -106,8 +106,10 @@
 }
 
 @utility safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0px); }
-@utility no-scrollbar { scrollbar-width: none; }
-@utility no-scrollbar::-webkit-scrollbar { display: none; }
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
 
 /* App max-width mobile shell on desktop */
 @utility app-shell {
