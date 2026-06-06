@@ -431,21 +431,19 @@ function PostWizard() {
         )}
       </div>
 
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 mx-auto max-w-[460px] border-t border-border bg-surface/95 px-5 py-3 backdrop-blur">
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '1rem', background: 'white', zIndex: 100 }}>
         {step < TOTAL - 1 ? (
           <button
-            disabled={!canNext}
             onClick={onNext}
-            className="w-full rounded-2xl bg-primary py-4 text-base font-extrabold text-primary-foreground shadow-pop disabled:opacity-40"
+            style={{ width: '100%', padding: '1rem', background: 'blue', color: 'white' }}
           >
-            {t("nextStep")} →
+            Next →
           </button>
         ) : (
           <button
-            onClick={publish}
-            className="w-full rounded-2xl bg-success py-4 text-base font-extrabold text-success-foreground shadow-pop"
+            style={{ width: '100%', padding: '1rem', background: 'green', color: 'white' }}
           >
-            ✓ {t("publish")}
+            ✓ Publish
           </button>
         )}
       </div>

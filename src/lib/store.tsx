@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Application, ChatThread, Job, Role } from "./types";
-import { seedJobs, seedChats } from "./mock";
+import { seedJobs, seedChats, seedRecruiterChats } from "./mock";
 
 interface AppState {
   role: Role | null;
@@ -48,6 +48,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [jobs, setJobs] = useState<Job[]>(seedJobs);
   const [applications, setApplications] = useState<Application[]>([]);
   const [chats, setChats] = useState<ChatThread[]>(seedChats);
+  const [recruiterChats, setRecruiterChats] = useState<ChatThread[]>(seedRecruiterChats);
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
@@ -60,6 +61,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setApplications(load("ks.apps", []));
     const c = load<ChatThread[] | null>("ks.chats", null);
     if (c && c.length) setChats(c);
+    const rc = load<ChatThread[] | null>("ks.recruiterChats", null);
+    if (rc && rc.length) setRecruiterChats(rc);
     setHydrated(true);
   }, []);
 
@@ -70,6 +73,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (hydrated) save("ks.jobs", jobs); }, [jobs, hydrated]);
   useEffect(() => { if (hydrated) save("ks.apps", applications); }, [applications, hydrated]);
   useEffect(() => { if (hydrated) save("ks.chats", chats); }, [chats, hydrated]);
+  useEffect(() => { if (hydrated) save("ks.recruiterChats", recruiterChats); }, [recruiterChats, hydrated]);
 
   const value = useMemo<AppState>(() => ({
     role,
@@ -87,9 +91,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     addApplication: (a) => setApplications((xs) => [a, ...xs]),
     setApplicationStatus: (id, s) =>
       setApplications((xs) => xs.map((a) => (a.id === id ? { ...a, status: s } : a))),
-    chats,
-    appendMessage: (chatId, text, from = "me") =>
-      setChats((xs) =>
+    chats: role === "recruiter" ? recruiterChats : chats,
+    appendMessage: (chatId, text, from = "me") => {
+      const updateFn = (xs: ChatThread[]) =>
         xs.map((c) =>
           c.id === chatId
             ? {
@@ -100,13 +104,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 ],
               }
             : c,
-        ),
-      ),
+        );
+      if (role === "recruiter") {
+        setRecruiterChats(updateFn);
+      } else {
+        setChats(updateFn);
+      }
+    },
     reset: () => {
       try { localStorage.clear(); } catch {}
       location.href = "/";
     },
-  }), [role, name, onboarded, city, jobs, applications, chats]);
+  }), [role, name, onboarded, city, jobs, applications, chats, recruiterChats]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

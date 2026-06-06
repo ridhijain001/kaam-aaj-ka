@@ -187,3 +187,27 @@ export const seedChats: ChatThread[] = [
     ],
   },
 ];
+
+export const seedRecruiterChats: ChatThread[] = [
+  {
+    id: "rc1",
+    name: "Sunita Devi",
+    emoji: "👩",
+    role: "Maid • Lajpat Nagar",
+    messages: [
+      { id: "m1", from: "me", text: "नमस्ते, क्या आप कल आ सकते हैं इंटरव्यू के लिए?", at: "10:20 AM" },
+      { id: "m2", from: "them", text: "जी मैडम, सुबह 9 बजे आ जाऊँगा 🙏", at: "10:30 AM" },
+    ],
+  },
+  {
+    id: "rc2",
+    name: "Ramesh Kumar",
+    emoji: "👨‍🔧",
+    role: "Electrician • Saket",
+    messages: [
+      { id: "m1", from: "me", text: "AC installation आज हो जाएगा?", at: "Yesterday" },
+      { id: "m2", from: "them", text: "हाँ, ₹600 लगेंगे, शाम 5 बजे पहुँचूँगा", at: "Yesterday" },
+    ],
+  },
+];
+

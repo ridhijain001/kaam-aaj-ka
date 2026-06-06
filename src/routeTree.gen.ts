@@ -22,8 +22,11 @@ import { Route as WorkerApplicationsRouteImport } from './routes/worker.applicat
 import { Route as RecruiterPostRouteImport } from './routes/recruiter.post'
 import { Route as RecruiterJobsRouteImport } from './routes/recruiter.jobs'
 import { Route as RecruiterChatsRouteImport } from './routes/recruiter.chats'
+import { Route as WorkerChatsIndexRouteImport } from './routes/worker.chats.index'
+import { Route as RecruiterChatsIndexRouteImport } from './routes/recruiter.chats.index'
 import { Route as WorkerJobsIdRouteImport } from './routes/worker.jobs.$id'
 import { Route as WorkerChatsIdRouteImport } from './routes/worker.chats.$id'
+import { Route as RecruiterChatsIdRouteImport } from './routes/recruiter.chats.$id'
 import { Route as RecruiterApplicantsJobIdRouteImport } from './routes/recruiter.applicants.$jobId'
 
 const WorkerRoute = WorkerRouteImport.update({
@@ -91,6 +94,16 @@ const RecruiterChatsRoute = RecruiterChatsRouteImport.update({
   path: '/chats',
   getParentRoute: () => RecruiterRoute,
 } as any)
+const WorkerChatsIndexRoute = WorkerChatsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => WorkerChatsRoute,
+} as any)
+const RecruiterChatsIndexRoute = RecruiterChatsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RecruiterChatsRoute,
+} as any)
 const WorkerJobsIdRoute = WorkerJobsIdRouteImport.update({
   id: '/jobs/$id',
   path: '/jobs/$id',
@@ -100,6 +113,11 @@ const WorkerChatsIdRoute = WorkerChatsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => WorkerChatsRoute,
+} as any)
+const RecruiterChatsIdRoute = RecruiterChatsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RecruiterChatsRoute,
 } as any)
 const RecruiterApplicantsJobIdRoute =
   RecruiterApplicantsJobIdRouteImport.update({
@@ -114,7 +132,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/worker': typeof WorkerRouteWithChildren
-  '/recruiter/chats': typeof RecruiterChatsRoute
+  '/recruiter/chats': typeof RecruiterChatsRouteWithChildren
   '/recruiter/jobs': typeof RecruiterJobsRoute
   '/recruiter/post': typeof RecruiterPostRoute
   '/worker/applications': typeof WorkerApplicationsRoute
@@ -123,24 +141,28 @@ export interface FileRoutesByFullPath {
   '/recruiter/': typeof RecruiterIndexRoute
   '/worker/': typeof WorkerIndexRoute
   '/recruiter/applicants/$jobId': typeof RecruiterApplicantsJobIdRoute
+  '/recruiter/chats/$id': typeof RecruiterChatsIdRoute
   '/worker/chats/$id': typeof WorkerChatsIdRoute
   '/worker/jobs/$id': typeof WorkerJobsIdRoute
+  '/recruiter/chats/': typeof RecruiterChatsIndexRoute
+  '/worker/chats/': typeof WorkerChatsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai': typeof AiRoute
   '/onboarding': typeof OnboardingRoute
-  '/recruiter/chats': typeof RecruiterChatsRoute
   '/recruiter/jobs': typeof RecruiterJobsRoute
   '/recruiter/post': typeof RecruiterPostRoute
   '/worker/applications': typeof WorkerApplicationsRoute
-  '/worker/chats': typeof WorkerChatsRouteWithChildren
   '/worker/profile': typeof WorkerProfileRoute
   '/recruiter': typeof RecruiterIndexRoute
   '/worker': typeof WorkerIndexRoute
   '/recruiter/applicants/$jobId': typeof RecruiterApplicantsJobIdRoute
+  '/recruiter/chats/$id': typeof RecruiterChatsIdRoute
   '/worker/chats/$id': typeof WorkerChatsIdRoute
   '/worker/jobs/$id': typeof WorkerJobsIdRoute
+  '/recruiter/chats': typeof RecruiterChatsIndexRoute
+  '/worker/chats': typeof WorkerChatsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,7 +171,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/recruiter': typeof RecruiterRouteWithChildren
   '/worker': typeof WorkerRouteWithChildren
-  '/recruiter/chats': typeof RecruiterChatsRoute
+  '/recruiter/chats': typeof RecruiterChatsRouteWithChildren
   '/recruiter/jobs': typeof RecruiterJobsRoute
   '/recruiter/post': typeof RecruiterPostRoute
   '/worker/applications': typeof WorkerApplicationsRoute
@@ -158,8 +180,11 @@ export interface FileRoutesById {
   '/recruiter/': typeof RecruiterIndexRoute
   '/worker/': typeof WorkerIndexRoute
   '/recruiter/applicants/$jobId': typeof RecruiterApplicantsJobIdRoute
+  '/recruiter/chats/$id': typeof RecruiterChatsIdRoute
   '/worker/chats/$id': typeof WorkerChatsIdRoute
   '/worker/jobs/$id': typeof WorkerJobsIdRoute
+  '/recruiter/chats/': typeof RecruiterChatsIndexRoute
+  '/worker/chats/': typeof WorkerChatsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,24 +203,28 @@ export interface FileRouteTypes {
     | '/recruiter/'
     | '/worker/'
     | '/recruiter/applicants/$jobId'
+    | '/recruiter/chats/$id'
     | '/worker/chats/$id'
     | '/worker/jobs/$id'
+    | '/recruiter/chats/'
+    | '/worker/chats/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/ai'
     | '/onboarding'
-    | '/recruiter/chats'
     | '/recruiter/jobs'
     | '/recruiter/post'
     | '/worker/applications'
-    | '/worker/chats'
     | '/worker/profile'
     | '/recruiter'
     | '/worker'
     | '/recruiter/applicants/$jobId'
+    | '/recruiter/chats/$id'
     | '/worker/chats/$id'
     | '/worker/jobs/$id'
+    | '/recruiter/chats'
+    | '/worker/chats'
   id:
     | '__root__'
     | '/'
@@ -212,8 +241,11 @@ export interface FileRouteTypes {
     | '/recruiter/'
     | '/worker/'
     | '/recruiter/applicants/$jobId'
+    | '/recruiter/chats/$id'
     | '/worker/chats/$id'
     | '/worker/jobs/$id'
+    | '/recruiter/chats/'
+    | '/worker/chats/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -317,6 +349,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruiterChatsRouteImport
       parentRoute: typeof RecruiterRoute
     }
+    '/worker/chats/': {
+      id: '/worker/chats/'
+      path: '/'
+      fullPath: '/worker/chats/'
+      preLoaderRoute: typeof WorkerChatsIndexRouteImport
+      parentRoute: typeof WorkerChatsRoute
+    }
+    '/recruiter/chats/': {
+      id: '/recruiter/chats/'
+      path: '/'
+      fullPath: '/recruiter/chats/'
+      preLoaderRoute: typeof RecruiterChatsIndexRouteImport
+      parentRoute: typeof RecruiterChatsRoute
+    }
     '/worker/jobs/$id': {
       id: '/worker/jobs/$id'
       path: '/jobs/$id'
@@ -331,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkerChatsIdRouteImport
       parentRoute: typeof WorkerChatsRoute
     }
+    '/recruiter/chats/$id': {
+      id: '/recruiter/chats/$id'
+      path: '/$id'
+      fullPath: '/recruiter/chats/$id'
+      preLoaderRoute: typeof RecruiterChatsIdRouteImport
+      parentRoute: typeof RecruiterChatsRoute
+    }
     '/recruiter/applicants/$jobId': {
       id: '/recruiter/applicants/$jobId'
       path: '/applicants/$jobId'
@@ -341,8 +394,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface RecruiterChatsRouteChildren {
+  RecruiterChatsIdRoute: typeof RecruiterChatsIdRoute
+  RecruiterChatsIndexRoute: typeof RecruiterChatsIndexRoute
+}
+
+const RecruiterChatsRouteChildren: RecruiterChatsRouteChildren = {
+  RecruiterChatsIdRoute: RecruiterChatsIdRoute,
+  RecruiterChatsIndexRoute: RecruiterChatsIndexRoute,
+}
+
+const RecruiterChatsRouteWithChildren = RecruiterChatsRoute._addFileChildren(
+  RecruiterChatsRouteChildren,
+)
+
 interface RecruiterRouteChildren {
-  RecruiterChatsRoute: typeof RecruiterChatsRoute
+  RecruiterChatsRoute: typeof RecruiterChatsRouteWithChildren
   RecruiterJobsRoute: typeof RecruiterJobsRoute
   RecruiterPostRoute: typeof RecruiterPostRoute
   RecruiterIndexRoute: typeof RecruiterIndexRoute
@@ -350,7 +417,7 @@ interface RecruiterRouteChildren {
 }
 
 const RecruiterRouteChildren: RecruiterRouteChildren = {
-  RecruiterChatsRoute: RecruiterChatsRoute,
+  RecruiterChatsRoute: RecruiterChatsRouteWithChildren,
   RecruiterJobsRoute: RecruiterJobsRoute,
   RecruiterPostRoute: RecruiterPostRoute,
   RecruiterIndexRoute: RecruiterIndexRoute,
@@ -363,10 +430,12 @@ const RecruiterRouteWithChildren = RecruiterRoute._addFileChildren(
 
 interface WorkerChatsRouteChildren {
   WorkerChatsIdRoute: typeof WorkerChatsIdRoute
+  WorkerChatsIndexRoute: typeof WorkerChatsIndexRoute
 }
 
 const WorkerChatsRouteChildren: WorkerChatsRouteChildren = {
   WorkerChatsIdRoute: WorkerChatsIdRoute,
+  WorkerChatsIndexRoute: WorkerChatsIndexRoute,
 }
 
 const WorkerChatsRouteWithChildren = WorkerChatsRoute._addFileChildren(
@@ -402,3 +471,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
