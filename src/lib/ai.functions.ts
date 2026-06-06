@@ -1,14 +1,42 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateText, Output } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 
-const MODEL = "google/gemini-3-flash-preview";
+async function callGemini(prompt: string, json: boolean = false) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GEMINI_API_KEY in environment");
+  }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: json ? { responseMimeType: "application/json" } : undefined,
+    }),
+  });
 
-function gateway() {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("Missing LOVABLE_API_KEY");
-  return createLovableAiGatewayProvider(key)(MODEL);
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Gemini API error: ${response.status} - ${errText}`);
+  }
+
+  const result = await response.json();
+  const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    throw new Error("Empty response from Gemini API");
+  }
+
+  if (json) {
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error("Failed to parse JSON from Gemini response:", text);
+      throw e;
+    }
+  }
+
+  return text;
 }
 
 // ─── 1. AI JOB SIMPLIFICATION ─────────────────────────────────────────────────
@@ -43,20 +71,16 @@ Job details:
 - Experience: ${data.experience}
 - Shift: ${data.shift}
 - Place: ${data.area}
-- Recruiter wrote: ${data.requirements}`;
+- Recruiter wrote: ${data.requirements}
 
-    const { experimental_output } = await generateText({
-      model: gateway(),
-      prompt,
-      experimental_output: Output.object({
-        schema: z.object({
-          hi: z.string(),
-          en: z.string(),
-          ta: z.string(),
-        }),
-      }),
-    });
-    return experimental_output;
+You must return a JSON object with this exact structure:
+{
+  "hi": "Hindi version text",
+  "en": "English version text",
+  "ta": "Tamil version text"
+}`;
+
+    return callGemini(prompt, true);
   });
 
 // ─── 2. EXPLAIN THIS JOB ──────────────────────────────────────────────────────
@@ -97,7 +121,7 @@ Job:
 - Area: ${data.area}
 - Notes: ${data.requirements}`;
 
-    const { text } = await generateText({ model: gateway(), prompt });
+    const text = await callGemini(prompt, false);
     return { text };
   });
 
@@ -123,20 +147,17 @@ export const smartSummary = createServerFn({ method: "POST" })
 - thingsToKnow: honest cautions / requirements
 - benefits: why this job might be good
 
-Job: ${JSON.stringify(data)}`;
-    const { experimental_output } = await generateText({
-      model: gateway(),
-      prompt,
-      experimental_output: Output.object({
-        schema: z.object({
-          highlights: z.array(z.string()),
-          bestFor: z.array(z.string()),
-          thingsToKnow: z.array(z.string()),
-          benefits: z.array(z.string()),
-        }),
-      }),
-    });
-    return experimental_output;
+Job: ${JSON.stringify(data)}
+
+You must return a JSON object with this exact structure:
+{
+  "highlights": ["highlight 1", "highlight 2", ...],
+  "bestFor": ["best for 1", "best for 2", ...],
+  "thingsToKnow": ["thing 1", "thing 2", ...],
+  "benefits": ["benefit 1", "benefit 2", ...]
+}`;
+
+    return callGemini(prompt, true);
   });
 
 // ─── 4. MATCH SCORE ───────────────────────────────────────────────────────────
@@ -158,17 +179,14 @@ export const matchScore = createServerFn({ method: "POST" })
     const prompt = `Score how well a worker matches this job from 0-100. Return JSON: { score: number, reasons: string[] (3 short positive bullets), gaps: string[] (0-2 short caveats) }.
 
 Worker: ${JSON.stringify({ cat: data.workerCategory, exp: data.workerExperience, area: data.workerArea, langs: data.workerLangs })}
-Job: ${JSON.stringify({ cat: data.jobCategory, exp: data.jobExperience, area: data.jobArea, dist: data.jobDistanceKm, salary: data.jobSalary })}`;
-    const { experimental_output } = await generateText({
-      model: gateway(),
-      prompt,
-      experimental_output: Output.object({
-        schema: z.object({
-          score: z.number(),
-          reasons: z.array(z.string()),
-          gaps: z.array(z.string()),
-        }),
-      }),
-    });
-    return experimental_output;
+Job: ${JSON.stringify({ cat: data.jobCategory, exp: data.jobExperience, area: data.jobArea, dist: data.jobDistanceKm, salary: data.jobSalary })}
+
+You must return a JSON object with this exact structure:
+{
+  "score": 85,
+  "reasons": ["reason 1", "reason 2", ...],
+  "gaps": ["gap 1", "gap 2", ...]
+}`;
+    return callGemini(prompt, true);
   });
+
